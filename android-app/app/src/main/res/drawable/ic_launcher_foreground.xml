@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108"
+    android:tint="#FFFFFF">
+  <!-- Meat emoji style icon -->
+  <group android:scaleX="0.8"
+      android:scaleY="0.8"
+      android:translateX="10.8"
+      android:translateY="10.8">
+    <!-- Meat shape -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,20 C30,20 20,40 20,54 C20,75 35,88 54,88 C73,88 88,75 88,54 C88,40 78,20 54,20 Z M54,30 C70,30 78,45 78,54 C78,68 68,78 54,78 C40,78 30,68 30,54 C30,45 38,30 54,30 Z"/>
+    <!-- Grill lines -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M35,50 L73,50 M35,58 L73,58 M35,66 L73,66"
+        android:strokeWidth="2"
+        android:strokeColor="#FFD700"/>
+  </group>
+</vector>
