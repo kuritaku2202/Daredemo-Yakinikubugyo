@@ -64,7 +64,6 @@
         #video {
             width: 100%;
             display: block;
-            transform: scaleX(-1);
         }
 
         #canvas {
@@ -73,7 +72,6 @@
             left: 0;
             width: 100%;
             height: 100%;
-            transform: scaleX(-1);
         }
 
         .controls {
@@ -324,11 +322,11 @@
         let cookedCount = 0;
         let rawCount = 0;
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             video = document.getElementById('video');
             canvas = document.getElementById('canvas');
             ctx = canvas.getContext('2d');
-            
+
             initCamera();
         });
 
@@ -342,7 +340,7 @@
                     },
                     audio: false
                 });
-                
+
                 video.srcObject = stream;
                 video.onloadedmetadata = () => {
                     canvas.width = video.videoWidth;
@@ -358,7 +356,7 @@
 
         async function loadModel() {
             updateStatus('モデルを読み込み中...');
-            
+
             try {
                 // Roboflowモデルを読み込み
                 await new Promise((resolve, reject) => {
@@ -367,12 +365,12 @@
                     }).load({
                         model: ROBOFLOW_MODEL,
                         version: ROBOFLOW_VERSION
-                    }).then(function(m) {
+                    }).then(function (m) {
                         model = m;
                         resolve();
                     }).catch(reject);
                 });
-                
+
                 updateStatus('モデル読み込み完了！');
                 return true;
             } catch (err) {
@@ -388,12 +386,12 @@
             if (!model) {
                 await loadModel();
             }
-            
+
             isDetecting = true;
             document.getElementById('startBtn').disabled = true;
             document.getElementById('stopBtn').disabled = false;
             updateStatus('検出中...');
-            
+
             // 検出ループ開始
             detectFrame();
         }
@@ -402,7 +400,7 @@
             isDetecting = false;
             document.getElementById('startBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
-            
+
             // キャンバスをクリア
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             updateStatus('検出停止');
@@ -410,13 +408,13 @@
 
         async function detectFrame() {
             if (!isDetecting) return;
-            
+
             try {
                 // キャンバスに現在のフレームを描画（検出結果表示用）
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
+
                 let predictions = [];
-                
+
                 if (model && model.simulate) {
                     // シミュレーションモード：ダミーの検出結果
                     if (Math.random() > 0.7) {
@@ -439,31 +437,31 @@
                     const result = await model.detect(video);
                     predictions = result;
                 }
-                
+
                 // 検出結果を描画
                 let currentCooked = 0;
                 let currentRaw = 0;
-                
+
                 predictions.forEach(pred => {
                     const x = pred.bbox.x - pred.bbox.width / 2;
                     const y = pred.bbox.y - pred.bbox.height / 2;
                     const width = pred.bbox.width;
                     const height = pred.bbox.height;
-                    
+
                     if (pred.class === 'cooked') {
                         // 焼けた肉：黄金の二重円
                         currentCooked++;
                         const centerX = x + width / 2;
                         const centerY = y + height / 2;
                         const radius = Math.max(width, height) / 2 + 15;
-                        
+
                         // 外円（黄金色）
                         ctx.beginPath();
                         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
                         ctx.strokeStyle = '#ffd700';
                         ctx.lineWidth = 6;
                         ctx.stroke();
-                        
+
                         // 内円（白）
                         ctx.beginPath();
                         ctx.arc(centerX, centerY, radius - 10, 0, Math.PI * 2);
@@ -474,7 +472,7 @@
                         // 生肉：白い角丸四角
                         currentRaw++;
                         const cornerRadius = 15;
-                        
+
                         ctx.beginPath();
                         ctx.moveTo(x + cornerRadius, y);
                         ctx.lineTo(x + width - cornerRadius, y);
@@ -486,22 +484,22 @@
                         ctx.lineTo(x, y + cornerRadius);
                         ctx.quadraticCurveTo(x, y, x + cornerRadius, y);
                         ctx.closePath();
-                        
+
                         ctx.strokeStyle = '#ffffff';
                         ctx.lineWidth = 4;
                         ctx.stroke();
                     }
                 });
-                
+
                 // カウント更新
                 cookedCount = currentCooked;
                 rawCount = currentRaw;
                 document.getElementById('cookedCount').textContent = cookedCount;
                 document.getElementById('rawCount').textContent = rawCount;
-                
+
                 // 次のフレームへ
                 requestAnimationFrame(detectFrame);
-                
+
             } catch (err) {
                 console.error('検出エラー:', err);
                 requestAnimationFrame(detectFrame);
